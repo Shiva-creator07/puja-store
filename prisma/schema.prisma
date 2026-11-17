@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  slug        String      @unique
+  description String?
+  pricePaise  Int
+  mrpPaise    Int?
+  stock       Int         @default(0)
+  imageUrl    String?
+  isActive    Boolean     @default(true)
+  isFeatured  Boolean     @default(false)
+  category    Category    @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([categoryId])
+}
+
+model Order {
+  id                Int         @id @default(autoincrement())
+  customerName      String
+  email             String
+  phone             String
+  addressLine       String
+  city              String
+  state             String
+  pincode           String
+  status            OrderStatus @default(PENDING)
+  totalPaise        Int
+  razorpayOrderId   String?     @unique
+  razorpayPaymentId String?
+  items             OrderItem[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          Int     @id @default(autoincrement())
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     Int
+  product     Product @relation(fields: [productId], references: [id])
+  productId   Int
+  productName String
+  quantity    Int
+  unitPaise   Int
+
+  @@index([orderId])
+  @@index([productId])
+}

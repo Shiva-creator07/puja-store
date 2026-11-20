@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatPrice, discountPercent } from "@/lib/format";
 import ProductCard from "@/components/ProductCard";
+import AddToCartButton from "@/components/AddToCartButton";
 
 type Params = Promise<{ slug: string }>;
 
@@ -89,15 +90,13 @@ async function ProductDetail({ params }: { params: Params }) {
             </p>
           )}
 
-          <button
-            disabled
-            className="mt-8 w-full rounded-lg bg-orange-700 px-6 py-3 font-semibold text-white opacity-60 md:w-auto"
-          >
-            Add to cart
-          </button>
-          <p className="mt-2 text-xs text-stone-500">
-            Cart and checkout are coming in the next step.
-          </p>
+          <AddToCartButton
+            productId={product.id}
+            slug={product.slug}
+            name={product.name}
+            pricePaise={product.pricePaise}
+            stock={product.stock}
+          />
         </div>
       </div>
 

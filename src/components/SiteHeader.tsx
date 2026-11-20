@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CartLink from "@/components/CartLink";
 
 export default function SiteHeader() {
   return (
@@ -12,10 +13,11 @@ export default function SiteHeader() {
             TPS
           </span>
         </Link>
-        <nav className="flex gap-6 text-sm font-medium text-stone-700">
+        <nav className="flex items-center gap-6 text-sm font-medium text-stone-700">
           <Link href="/#categories">Categories</Link>
           <Link href="/#featured">Featured</Link>
           <Link href="/#products">All products</Link>
+          <CartLink />
         </nav>
       </div>
     </header>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
 
@@ -27,15 +28,16 @@ export default async function Catalog() {
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
           {categories.map((c) => (
-            <div
+            <Link
               key={c.id}
-              className="rounded-xl border border-amber-200 bg-white p-4 text-center shadow-sm"
+              href={`/category/${c.slug}`}
+              className="rounded-xl border border-amber-200 bg-white p-4 text-center shadow-sm transition hover:shadow-md"
             >
               <p className="font-semibold text-stone-900">{c.name}</p>
               <p className="mt-1 text-xs text-stone-500">
                 {c._count.products} products
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -48,6 +50,7 @@ export default async function Catalog() {
           {featured.map((p) => (
             <ProductCard
               key={p.id}
+              slug={p.slug}
               name={p.name}
               pricePaise={p.pricePaise}
               mrpPaise={p.mrpPaise}
@@ -64,6 +67,7 @@ export default async function Catalog() {
           {products.map((p) => (
             <ProductCard
               key={p.id}
+              slug={p.slug}
               name={p.name}
               pricePaise={p.pricePaise}
               mrpPaise={p.mrpPaise}

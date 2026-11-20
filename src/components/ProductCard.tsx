@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { formatPrice, discountPercent } from "@/lib/format";
 
 type Props = {
+  slug: string;
   name: string;
   pricePaise: number;
   mrpPaise: number | null;
@@ -9,6 +11,7 @@ type Props = {
 };
 
 export default function ProductCard({
+  slug,
   name,
   pricePaise,
   mrpPaise,
@@ -18,7 +21,10 @@ export default function ProductCard({
   const off = discountPercent(pricePaise, mrpPaise);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm">
+    <Link
+      href={`/product/${slug}`}
+      className="flex flex-col overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm transition hover:shadow-md"
+    >
       <div className="relative flex h-40 items-center justify-center bg-amber-100 text-5xl">
         🪔
         {off !== null && (
@@ -48,6 +54,6 @@ export default function ProductCard({
           <p className="text-xs font-medium text-red-600">Out of stock</p>
         )}
       </div>
-    </div>
+    </Link>
   );
 }

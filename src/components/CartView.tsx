@@ -99,12 +99,12 @@ export default function CartView() {
         <p className="text-xs text-stone-500">
           Shipping and final total are confirmed at checkout.
         </p>
-        <button
-          disabled
-          className="rounded-lg bg-orange-700 px-6 py-3 font-semibold text-white opacity-60"
+        <Link
+          href="/checkout"
+          className="rounded-lg bg-orange-700 px-6 py-3 font-semibold text-white hover:bg-orange-800"
         >
-          Checkout (coming next)
-        </button>
+          Proceed to checkout
+        </Link>
       </div>
     </div>
   );

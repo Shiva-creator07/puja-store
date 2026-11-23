@@ -74,6 +74,12 @@ function HeaderBar({ categories }: { categories: Category[] }) {
           <Link href="/shop" className="font-medium hover:underline">
             Shop
           </Link>
+          <Link href="/about" className="font-medium hover:underline">
+            About Us
+          </Link>
+          <Link href="/contact" className="font-medium hover:underline">
+            Contact Us
+          </Link>
           <div className="ml-auto">
             <CartLink />
           </div>

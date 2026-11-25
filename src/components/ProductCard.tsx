@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatPrice, discountPercent } from "@/lib/format";
+import { cldUrl } from "@/lib/images";
 
 type Props = {
   slug: string;
@@ -8,6 +9,7 @@ type Props = {
   mrpPaise: number | null;
   stock: number;
   categoryName?: string;
+  imageUrl?: string | null;
 };
 
 export default function ProductCard({
@@ -17,16 +19,28 @@ export default function ProductCard({
   mrpPaise,
   stock,
   categoryName,
+  imageUrl,
 }: Props) {
   const off = discountPercent(pricePaise, mrpPaise);
+  const photo = cldUrl(imageUrl, 500, 500);
 
   return (
     <Link
       href={`/product/${slug}`}
       className="flex flex-col overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm transition hover:shadow-md"
     >
-      <div className="relative flex h-40 items-center justify-center bg-amber-100 text-5xl">
-        🪔
+      <div className="relative flex aspect-square items-center justify-center bg-amber-100 text-5xl">
+        {photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photo}
+            alt={name}
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <span aria-hidden="true">🪔</span>
+        )}
         {off !== null && (
           <span className="absolute left-3 top-3 rounded-full bg-orange-700 px-2 py-0.5 text-xs font-semibold text-white">
             {off}% off

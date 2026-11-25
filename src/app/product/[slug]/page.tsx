@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatPrice, discountPercent } from "@/lib/format";
+import { cldUrl } from "@/lib/images";
 import ProductCard from "@/components/ProductCard";
 import AddToCartButton from "@/components/AddToCartButton";
 
@@ -27,6 +28,7 @@ async function ProductDetail({ params }: { params: Params }) {
   });
 
   const off = discountPercent(product.pricePaise, product.mrpPaise);
+  const photo = cldUrl(product.imageUrl, 900, 900);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -44,8 +46,17 @@ async function ProductDetail({ params }: { params: Params }) {
       </nav>
 
       <div className="grid gap-10 md:grid-cols-2">
-        <div className="relative flex h-80 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100 text-8xl">
-          🪔
+        <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-amber-200 bg-amber-100 text-8xl">
+          {photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={photo}
+              alt={product.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <span aria-hidden="true">🪔</span>
+          )}
           {off !== null && (
             <span className="absolute left-4 top-4 rounded-full bg-orange-700 px-3 py-1 text-sm font-semibold text-white">
               {off}% off
@@ -114,6 +125,7 @@ async function ProductDetail({ params }: { params: Params }) {
                 pricePaise={p.pricePaise}
                 mrpPaise={p.mrpPaise}
                 stock={p.stock}
+                imageUrl={p.imageUrl}
               />
             ))}
           </div>

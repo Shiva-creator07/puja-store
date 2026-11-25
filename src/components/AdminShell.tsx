@@ -17,6 +17,7 @@ export default function AdminShell({
           </Link>
           <Link href="/admin/orders">Orders</Link>
           <Link href="/admin/products">Products</Link>
+          <Link href="/admin/categories">Categories</Link>
           <Link href="/" target="_blank">
             View store
           </Link>

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { saveProduct } from "@/app/admin/products/actions";
+import ImageUploader from "@/components/ImageUploader";
 
 type Category = { id: number; name: string };
 
@@ -17,6 +18,7 @@ type ProductValues = {
   categoryId: number;
   isActive: boolean;
   isFeatured: boolean;
+  imageUrl: string | null;
 };
 
 const field =
@@ -128,6 +130,8 @@ export default function ProductForm({
           />
         </label>
       </div>
+
+      <ImageUploader initialUrl={product?.imageUrl ?? null} />
 
       <label className="block text-sm font-medium text-stone-700">
         Description

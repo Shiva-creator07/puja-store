@@ -80,6 +80,21 @@ export async function saveProduct(
     return fail("Description is too long (max 2000 characters).");
   }
 
+  const imageRaw = String(formData.get("imageUrl") ?? "").trim();
+  let imageUrl: string | null = null;
+  if (imageRaw !== "") {
+    const cloud = process.env.CLOUDINARY_CLOUD_NAME;
+    const prefix = cloud
+      ? `https://res.cloudinary.com/${cloud}/`
+      : "https://res.cloudinary.com/";
+    if (!imageRaw.startsWith(prefix) || imageRaw.length > 500) {
+      return fail(
+        "That photo link is not valid. Please upload the photo again.",
+      );
+    }
+    imageUrl = imageRaw;
+  }
+
   const isActive = formData.get("isActive") === "on";
   const isFeatured = formData.get("isFeatured") === "on";
 
@@ -98,6 +113,7 @@ export async function saveProduct(
       stock,
       categoryId,
       description: description === "" ? null : description,
+      imageUrl,
       isActive,
       isFeatured,
     };

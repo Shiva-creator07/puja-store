@@ -1,10 +1,10 @@
-import AdminShell from "@/components/AdminShell";
-import ProductForm from "@/components/ProductForm";
-import { requireAdmin } from "@/lib/admin-auth";
-import { prisma } from "@/lib/prisma";
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/admin-auth";
+import AdminShell from "@/components/AdminShell";
+import ProductForm from "@/components/ProductForm";
 
 export const metadata = {
   title: "Edit product | TPS Admin",
@@ -62,6 +62,7 @@ async function EditProduct({ params }: { params: Params }) {
             categoryId: product.categoryId,
             isActive: product.isActive,
             isFeatured: product.isFeatured,
+            imageUrl: product.imageUrl,
           }}
         />
       </div>

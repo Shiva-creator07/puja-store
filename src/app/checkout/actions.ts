@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { INDIAN_STATES } from "@/lib/states";
+import { shippingFor } from "@/lib/shipping";
 
 export type PlaceOrderResult =
   | { ok: true; publicId: string }
@@ -15,6 +16,14 @@ function text(v: unknown, min: number, max: number): string | null {
   if (typeof v !== "string") return null;
   const s = v.trim().replace(/\s+/g, " ");
   return s.length >= min && s.length <= max ? s : null;
+}
+
+class OutOfStockError extends Error {
+  productName: string;
+  constructor(productName: string) {
+    super("Out of stock");
+    this.productName = productName;
+  }
 }
 
 export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
@@ -84,7 +93,7 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
       );
     }
 
-    let totalPaise = 0;
+    let subtotalPaise = 0;
     const lines: {
       productId: number;
       productName: string;
@@ -99,7 +108,7 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
           `Only ${p.stock} of "${p.name}" in stock. Please update your cart.`,
         );
       }
-      totalPaise += p.pricePaise * qty;
+      subtotalPaise += p.pricePaise * qty;
       lines.push({
         productId: p.id,
         productName: p.name,
@@ -107,24 +116,51 @@ export async function placeOrder(input: unknown): Promise<PlaceOrderResult> {
         unitPaise: p.pricePaise,
       });
     }
+    // Always lock products in the same order, to avoid deadlocks
+    lines.sort((a, b) => a.productId - b.productId);
 
-    const order = await prisma.order.create({
-      data: {
-        customerName,
-        email,
-        phone,
-        addressLine,
-        city,
-        state,
-        pincode,
-        totalPaise,
-        items: { create: lines },
-      },
-      select: { publicId: true },
+    const shippingPaise = shippingFor(subtotalPaise);
+    const totalPaise = subtotalPaise + shippingPaise;
+
+    const order = await prisma.$transaction(async (tx) => {
+      // Take the stock first. If another customer got there first, stop.
+      for (const l of lines) {
+        const res = await tx.product.updateMany({
+          where: {
+            id: l.productId,
+            isActive: true,
+            stock: { gte: l.quantity },
+          },
+          data: { stock: { decrement: l.quantity } },
+        });
+        if (res.count !== 1) throw new OutOfStockError(l.productName);
+      }
+
+      return tx.order.create({
+        data: {
+          customerName,
+          email,
+          phone,
+          addressLine,
+          city,
+          state,
+          pincode,
+          shippingPaise,
+          totalPaise,
+          stockReserved: true,
+          items: { create: lines },
+        },
+        select: { publicId: true },
+      });
     });
 
     return { ok: true, publicId: order.publicId };
   } catch (e) {
+    if (e instanceof OutOfStockError) {
+      return err(
+        `Sorry, "${e.productName}" just went out of stock. Please update your cart.`,
+      );
+    }
     console.error("placeOrder failed", e);
     return err("Something went wrong while placing your order. Please try again.");
   }

@@ -10,4 +10,10 @@ export const SITE = {
   dispatchTime: "1 to 2 business days",
   deliveryTime: "3 to 7 business days",
   returnDays: 7,
+
+  // Delivery charge in paise (4900 = Rs 49). Use 0 for free delivery on every order.
+  shippingFlatPaise: 4900,
+  // Orders with a subtotal at or above this get free delivery (49900 = Rs 499).
+  // Use 0 if you want to charge everyone.
+  freeShippingOverPaise: 49900,
 };

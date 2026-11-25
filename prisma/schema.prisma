@@ -57,6 +57,8 @@ model Order {
   pincode           String
   status            OrderStatus @default(PENDING)
   totalPaise        Int
+  shippingPaise     Int         @default(0)
+  stockReserved     Boolean     @default(false)
   razorpayOrderId   String?     @unique
   razorpayPaymentId String?
   items             OrderItem[]

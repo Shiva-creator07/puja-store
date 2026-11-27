@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useCart, clearCart, cartTotalPaise } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 import { INDIAN_STATES } from "@/lib/states";
+import { shippingFor } from "@/lib/shipping";
+import { SITE } from "@/lib/site";
 import { placeOrder } from "@/app/checkout/actions";
 
 const field =
@@ -35,7 +37,13 @@ export default function CheckoutForm() {
     );
   }
 
-  const total = cartTotalPaise(items);
+  const subtotal = cartTotalPaise(items);
+  const shipping = shippingFor(subtotal);
+  const total = subtotal + shipping;
+  const toFree =
+    SITE.freeShippingOverPaise > 0 && shipping > 0
+      ? SITE.freeShippingOverPaise - subtotal
+      : 0;
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -141,15 +149,34 @@ export default function CheckoutForm() {
             </li>
           ))}
         </ul>
+
+        <div className="mt-4 space-y-2 border-t border-amber-200 pt-4 text-sm">
+          <div className="flex justify-between">
+            <span className="text-stone-600">Subtotal</span>
+            <span className="font-medium text-stone-900">
+              {formatPrice(subtotal)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-stone-600">Delivery</span>
+            <span className="font-medium text-stone-900">
+              {shipping === 0 ? "Free" : formatPrice(shipping)}
+            </span>
+          </div>
+        </div>
+
+        {toFree > 0 && (
+          <p className="mt-3 rounded-lg bg-amber-100 px-3 py-2 text-xs text-orange-800">
+            Add {formatPrice(toFree)} more for free delivery.
+          </p>
+        )}
+
         <div className="mt-4 flex justify-between border-t border-amber-200 pt-4">
           <span className="font-semibold text-stone-900">Total</span>
           <span className="text-xl font-bold text-orange-700">
             {formatPrice(total)}
           </span>
         </div>
-        <p className="mt-2 text-xs text-stone-500">
-          Delivery charges, if any, are confirmed before dispatch.
-        </p>
       </aside>
     </div>
   );

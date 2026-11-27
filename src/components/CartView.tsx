@@ -9,6 +9,8 @@ import {
   MAX_QTY_PER_ITEM,
 } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
+import { shippingFor } from "@/lib/shipping";
+import { SITE } from "@/lib/site";
 
 export default function CartView() {
   const items = useCart();
@@ -31,7 +33,13 @@ export default function CartView() {
     );
   }
 
-  const total = cartTotalPaise(items);
+  const subtotal = cartTotalPaise(items);
+  const shipping = shippingFor(subtotal);
+  const total = subtotal + shipping;
+  const toFree =
+    SITE.freeShippingOverPaise > 0 && shipping > 0
+      ? SITE.freeShippingOverPaise - subtotal
+      : 0;
 
   return (
     <div className="mt-8">
@@ -89,19 +97,33 @@ export default function CartView() {
         })}
       </ul>
 
-      <div className="mt-6 flex flex-col items-end gap-2">
-        <p className="text-lg">
+      <div className="mt-6 flex flex-col items-end gap-1">
+        <p className="text-stone-700">
           Subtotal:{" "}
+          <span className="font-semibold text-stone-900">
+            {formatPrice(subtotal)}
+          </span>
+        </p>
+        <p className="text-stone-700">
+          Delivery:{" "}
+          <span className="font-semibold text-stone-900">
+            {shipping === 0 ? "Free" : formatPrice(shipping)}
+          </span>
+        </p>
+        {toFree > 0 && (
+          <p className="rounded-lg bg-amber-100 px-3 py-1 text-sm text-orange-800">
+            Add {formatPrice(toFree)} more for free delivery
+          </p>
+        )}
+        <p className="mt-2 text-lg text-stone-800">
+          Total:{" "}
           <span className="text-2xl font-bold text-orange-700">
             {formatPrice(total)}
           </span>
         </p>
-        <p className="text-xs text-stone-500">
-          Shipping and final total are confirmed at checkout.
-        </p>
         <Link
           href="/checkout"
-          className="rounded-lg bg-orange-700 px-6 py-3 font-semibold text-white hover:bg-orange-800"
+          className="mt-2 rounded-lg bg-orange-700 px-6 py-3 font-semibold text-white hover:bg-orange-800"
         >
           Proceed to checkout
         </Link>

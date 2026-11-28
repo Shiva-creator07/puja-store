@@ -33,6 +33,10 @@ async function OrderDetail({ params }: { params: Params }) {
   if (!order) notFound();
 
   const orderNo = `TPS-${String(order.id).padStart(5, "0")}`;
+  const subtotal = order.items.reduce(
+    (sum, i) => sum + i.unitPaise * i.quantity,
+    0,
+  );
 
   return (
     <div>
@@ -78,6 +82,20 @@ async function OrderDetail({ params }: { params: Params }) {
                 </span>
               </li>
             ))}
+            <li className="space-y-2 p-4 text-sm">
+              <div className="flex justify-between">
+                <span className="text-stone-600">Subtotal</span>
+                <span className="font-medium text-stone-900">
+                  {formatPrice(subtotal)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-stone-600">Delivery</span>
+                <span className="font-medium text-stone-900">
+                  {order.shippingPaise === 0 ? "Free" : formatPrice(order.shippingPaise)}
+                </span>
+              </div>
+            </li>
             <li className="flex justify-between p-4">
               <span className="font-semibold text-stone-900">Total</span>
               <span className="text-xl font-bold text-orange-700">
@@ -113,6 +131,9 @@ async function OrderDetail({ params }: { params: Params }) {
                 Update
               </button>
             </form>
+            <p className="mt-3 text-xs text-stone-500">
+              Stock: {order.stockReserved ? "held for this order" : "not held"}
+            </p>
           </div>
 
           <div className="rounded-xl border border-amber-200 bg-white p-5 text-sm text-stone-700">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/format";
+import { STATUS_LABEL } from "@/lib/order-status";
 
 export const metadata = {
   title: "Your order | The Puja Store (TPS)",
@@ -10,14 +11,6 @@ export const metadata = {
 };
 
 type Params = Promise<{ publicId: string }>;
-
-const STATUS_LABEL: Record<string, string> = {
-  PENDING: "Awaiting payment",
-  PAID: "Paid",
-  SHIPPED: "Shipped",
-  DELIVERED: "Delivered",
-  CANCELLED: "Cancelled",
-};
 
 async function OrderDetail({ params }: { params: Params }) {
   const { publicId } = await params;
@@ -28,6 +21,10 @@ async function OrderDetail({ params }: { params: Params }) {
   if (!order) notFound();
 
   const orderNo = `TPS-${String(order.id).padStart(5, "0")}`;
+  const subtotal = order.items.reduce(
+    (sum, i) => sum + i.unitPaise * i.quantity,
+    0,
+  );
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -54,6 +51,20 @@ async function OrderDetail({ params }: { params: Params }) {
             </span>
           </li>
         ))}
+        <li className="space-y-2 p-4 text-sm">
+          <div className="flex justify-between">
+            <span className="text-stone-600">Subtotal</span>
+            <span className="font-medium text-stone-900">
+              {formatPrice(subtotal)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-stone-600">Delivery</span>
+            <span className="font-medium text-stone-900">
+              {order.shippingPaise === 0 ? "Free" : formatPrice(order.shippingPaise)}
+            </span>
+          </div>
+        </li>
         <li className="flex justify-between p-4">
           <span className="font-semibold text-stone-900">Total</span>
           <span className="text-xl font-bold text-orange-700">
